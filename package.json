@@ -19,10 +19,10 @@
   ],
   "author": "",
   "license": "MIT",
-  "dependencies": {
-    "@catalyst-team/poly-sdk": "^0.4.3"
-  },
   "devDependencies": {
     "@types/node": "^20.0.0"
+  },
+  "dependencies": {
+    "@catalyst-team/poly-sdk": "0.4.0"
   }
 }
