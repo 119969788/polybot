@@ -171,11 +171,68 @@ followSettings: {
 - 检查过滤条件是否太严格
 - 确认 `minTradeSize` 设置合理
 
+## 服务器部署
+
+### 快速部署到阿里云
+
+查看 [DEPLOY.md](DEPLOY.md) 获取详细的服务器部署指南。
+
+#### 使用自动安装脚本（推荐）
+
+```bash
+# 在服务器上执行
+wget https://raw.githubusercontent.com/119969788/polybot/main/install.sh
+chmod +x install.sh
+sudo bash install.sh
+```
+
+#### 手动安装步骤
+
+1. **连接到服务器**
+   ```bash
+   ssh root@your_server_ip
+   ```
+
+2. **安装 Node.js 和 Git**
+   ```bash
+   # Ubuntu/Debian
+   curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+   apt install -y nodejs git
+   ```
+
+3. **克隆项目**
+   ```bash
+   git clone https://github.com/119969788/polybot.git
+   cd polybot
+   ```
+
+4. **安装依赖**
+   ```bash
+   npm install
+   ```
+
+5. **配置项目**
+   ```bash
+   cp config.example.js config.js
+   nano config.js  # 编辑配置
+   ```
+
+6. **使用 PM2 运行**
+   ```bash
+   npm install -g pm2
+   pm2 start index.js --name polybot
+   pm2 save
+   pm2 startup
+   ```
+
+详细步骤请参考 [DEPLOY.md](DEPLOY.md)。
+
 ## 相关链接
 
 - [poly-sdk GitHub](https://github.com/cyl19970726/poly-sdk)
 - [poly-sdk 文档](https://github.com/cyl19970726/poly-sdk#readme)
 - [Polymarket 官网](https://polymarket.com/)
+- [部署指南](DEPLOY.md) - 详细的服务器部署说明
 
 ## 许可证
 

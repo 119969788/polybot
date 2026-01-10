@@ -6,7 +6,11 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "node --watch index.js"
+    "dev": "node --watch index.js",
+    "pm2:start": "pm2 start index.js --name polybot",
+    "pm2:stop": "pm2 stop polybot",
+    "pm2:restart": "pm2 restart polybot",
+    "pm2:logs": "pm2 logs polybot"
   },
   "keywords": [
     "wallet",
