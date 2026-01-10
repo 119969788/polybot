@@ -1,0 +1,24 @@
+{
+  "name": "polybot",
+  "version": "1.0.0",
+  "description": "钱包跟单机器人，基于 poly-sdk",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "keywords": [
+    "wallet",
+    "copy-trading",
+    "poly-sdk"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@catalyst-team/poly-sdk": "^0.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  }
+}
