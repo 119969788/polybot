@@ -1,0 +1,84 @@
+在阿里云服务器上安装 polybot
+========================================
+
+方法一：使用脚本（推荐）
+----------------------------------------
+# 下载并运行
+curl -fsSL https://raw.githubusercontent.com/119969788/polybot/main/install.sh | bash
+
+# 或手动下载
+wget https://raw.githubusercontent.com/119969788/polybot/main/install.sh
+chmod +x install.sh
+sudo bash install.sh
+
+
+方法二：一行命令安装
+----------------------------------------
+# Ubuntu/Debian
+curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+apt install -y nodejs git && \
+npm install -g pm2 && \
+mkdir -p /opt/polybot && \
+cd /opt/polybot && \
+git clone https://github.com/119969788/polybot.git . && \
+npm install && \
+cp config.example.js config.js && \
+echo "✅ 安装完成，请编辑 config.js 配置项目"
+
+
+方法三：手动安装步骤
+----------------------------------------
+# 1. 更新系统
+apt update && apt upgrade -y
+apt install -y curl git
+
+# 2. 安装 Node.js
+curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+apt install -y nodejs
+
+# 3. 安装 PM2
+npm install -g pm2
+
+# 4. 克隆项目
+mkdir -p /opt/polybot
+cd /opt/polybot
+git clone https://github.com/119969788/polybot.git .
+
+# 5. 安装依赖
+npm install
+
+# 6. 配置
+cp config.example.js config.js
+nano config.js
+
+
+运行项目
+----------------------------------------
+# 测试运行
+cd /opt/polybot
+npm start
+
+# 使用 PM2 后台运行
+cd /opt/polybot
+pm2 start index.js --name polybot
+pm2 save
+pm2 startup
+pm2 logs polybot
+
+
+更新项目
+----------------------------------------
+cd /opt/polybot
+pm2 stop polybot
+git pull origin main
+npm install
+pm2 restart polybot
+
+
+常用 PM2 命令
+----------------------------------------
+pm2 list              # 查看进程
+pm2 logs polybot      # 查看日志
+pm2 restart polybot   # 重启
+pm2 stop polybot      # 停止
+pm2 monit             # 监控面板

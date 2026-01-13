@@ -1,0 +1,43 @@
+腾讯云服务器快速更新命令
+========================================
+
+方法一：Git Pull（推荐）
+----------------------------------------
+cd /opt/polybot && git pull origin main && pm2 restart polybot
+
+
+方法二：使用自动更新脚本
+----------------------------------------
+cd /opt/polybot
+bash auto-update.sh
+
+
+方法三：手动上传后更新
+----------------------------------------
+# 在本地执行（上传文件）
+scp src/ProfitTracker.js user@server:/opt/polybot/src/
+scp src/WalletFollower.js user@server:/opt/polybot/src/
+scp config.js user@server:/opt/polybot/
+
+# 在服务器上执行
+cd /opt/polybot
+node --check src/ProfitTracker.js
+pm2 restart polybot
+
+
+验证更新
+----------------------------------------
+# 检查文件
+ls -la src/ProfitTracker.js
+
+# 检查配置
+grep "orderType" config.js  # 应该显示: orderType: 'FAK'
+grep "profitTracking" config.js  # 应该显示配置
+
+# 查看日志
+pm2 logs polybot --lines 30
+
+
+完整更新流程（一行命令）
+----------------------------------------
+cd /opt/polybot && cp config.js config.js.backup.$(date +%Y%m%d_%H%M%S) && git pull origin main && mkdir -p data && chmod 755 data && node --check src/ProfitTracker.js && pm2 restart polybot && echo "✅ 更新完成" && pm2 logs polybot --lines 20

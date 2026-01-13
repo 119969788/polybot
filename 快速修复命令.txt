@@ -1,0 +1,59 @@
+在服务器上直接执行以下命令修复配置：
+
+========================================
+方法一：直接创建配置文件（推荐）
+========================================
+
+cd /opt/polybot && \
+cp config.js config.js.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true && \
+cat > config.js << 'EOF'
+/**
+ * 钱包跟单配置
+ */
+export default {
+  sdk: {
+    privateKey: '0xd4ae880287b31d8316f31e938a4bb50d6260d765229076be83d8fa7962f2531b',
+    chainId: 137,
+  },
+  targetWallets: [
+    '0xe00740bce98a594e26861838885ab310ec3b548c',
+    '0x6031b6eed1c97e853c6e0f03ad3ce3529351f96d',
+  ],
+  topTradersCount: 10,
+  followSettings: {
+    sizeScale: 0.1,
+    maxSizePerTrade: 10,
+    minTradeSize: 1,
+    maxSlippage: 0.03,
+    orderType: 'FOK',
+    autoFollow: true,
+    dryRun: false,
+    watchInterval: 5000,
+  },
+  filters: {
+    excludeTokens: [],
+  }
+};
+EOF
+node -e "import('./config.js').then(c => { const cfg = c.default; console.log('✅ 配置验证:'); console.log('  私钥:', cfg.sdk?.privateKey ? '✅ (' + cfg.sdk.privateKey.length + ' 字符)' : '❌'); console.log('  自动跟单:', cfg.followSettings?.autoFollow === true ? '✅' : '❌'); console.log('  目标钱包:', cfg.targetWallets?.length || 0, '个'); }).catch(e => console.error('❌ 验证失败:', e.message));"
+
+
+========================================
+方法二：使用 nano 编辑器
+========================================
+
+cd /opt/polybot
+nano config.js
+
+# 然后复制上面的配置内容并保存
+
+
+========================================
+验证和运行
+========================================
+
+# 验证配置
+node test-config.js
+
+# 运行程序
+npm start

@@ -1,0 +1,51 @@
+腾讯云服务器快速设置自动更新
+========================================
+
+方法一：一行命令设置（推荐）
+----------------------------------------
+cd /opt/polybot && chmod +x setup-auto-update.sh auto-update.sh && bash setup-auto-update.sh /opt/polybot 30
+
+
+方法二：手动设置 Crontab
+----------------------------------------
+# 1. 添加执行权限
+chmod +x /opt/polybot/auto-update.sh
+
+# 2. 编辑 crontab
+crontab -e
+
+# 3. 添加（每30分钟检查一次）
+*/30 * * * * cd /opt/polybot && bash auto-update.sh >> /opt/polybot/logs/auto-update-cron.log 2>&1
+
+# 保存：Ctrl+O, 回车, Ctrl+X
+
+
+查看更新日志
+----------------------------------------
+tail -f /opt/polybot/logs/auto-update.log
+tail -f /opt/polybot/logs/auto-update-cron.log
+
+
+手动执行更新
+----------------------------------------
+cd /opt/polybot
+bash auto-update.sh
+
+
+查看 Crontab 任务
+----------------------------------------
+crontab -l
+
+
+删除自动更新任务
+----------------------------------------
+crontab -e
+# 删除包含 auto-update.sh 的行
+
+
+不同更新间隔示例
+----------------------------------------
+每 15 分钟: */15 * * * *
+每 30 分钟: */30 * * * *
+每小时:     0 * * * *
+每天 2:00:  0 2 * * *

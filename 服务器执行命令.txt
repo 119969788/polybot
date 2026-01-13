@@ -1,0 +1,43 @@
+在服务器上执行以下命令：
+========================================
+
+方法一：直接执行（推荐）
+----------------------------------------
+ssh user@your-server-ip
+cd /opt/polybot
+git pull origin main
+node diagnose-failures.js
+
+
+方法二：使用脚本
+----------------------------------------
+# 先上传脚本到服务器
+scp 服务器拉取并运行诊断.sh user@server:/opt/polybot/
+
+# 在服务器上执行
+ssh user@your-server-ip
+cd /opt/polybot
+chmod +x 服务器拉取并运行诊断.sh
+bash 服务器拉取并运行诊断.sh
+
+
+方法三：一行命令（最简单）
+----------------------------------------
+ssh user@your-server-ip "cd /opt/polybot && git pull origin main && node diagnose-failures.js"
+
+
+完整步骤（如果使用 PM2）
+----------------------------------------
+ssh user@your-server-ip
+cd /opt/polybot
+git pull origin main
+
+# 验证文件
+ls -lh diagnose-failures.js
+
+# 运行诊断
+node diagnose-failures.js
+
+# 如果需要，重启服务
+pm2 restart polybot
+pm2 logs polybot --lines 30

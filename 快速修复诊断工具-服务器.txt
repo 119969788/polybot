@@ -1,0 +1,90 @@
+在服务器上修复 diagnose-failures.js
+========================================
+
+方法一：使用修复脚本（推荐）
+----------------------------------------
+# 上传脚本到服务器（在本地执行）
+scp 修复诊断工具-服务器.sh user@server:/tmp/
+
+# 在服务器上执行
+ssh user@server
+bash /tmp/修复诊断工具-服务器.sh /opt/polybot
+
+
+方法二：使用 sed 命令（一行命令）
+----------------------------------------
+cd /opt/polybot
+
+# 备份文件
+cp diagnose-failures.js diagnose-failures.js.bak
+
+# 修复导入方式
+sed -i "s/import PolymarketSDK from '@catalyst-team\/poly-sdk';/import { PolymarketSDK } from '@catalyst-team\/poly-sdk';/" diagnose-failures.js
+
+# 修复 SDK 初始化方式
+sed -i 's/sdk = new PolymarketSDK({/sdk = await PolymarketSDK.create({/' diagnose-failures.js
+
+# 验证修复
+grep "import { PolymarketSDK }" diagnose-failures.js
+grep "PolymarketSDK.create" diagnose-failures.js
+
+
+方法三：使用 nano 手动编辑
+----------------------------------------
+cd /opt/polybot
+nano diagnose-failures.js
+
+# 找到第 6 行，修改为：
+# import { PolymarketSDK } from '@catalyst-team/poly-sdk';
+
+# 找到 SDK 初始化部分（大约第 27-30 行），修改为：
+# sdk = await PolymarketSDK.create({
+#   privateKey: privateKey,
+#   chainId: config.sdk?.chainId || 137,
+# });
+
+# 保存：Ctrl+O, Enter, Ctrl+X
+
+
+方法四：下载并替换文件（如果有权限）
+----------------------------------------
+cd /opt/polybot
+
+# 备份原文件
+cp diagnose-failures.js diagnose-failures.js.bak
+
+# 从 GitHub 下载修复后的文件（如果已推送）
+git pull origin main
+
+# 或手动下载
+wget -O diagnose-failures.js https://raw.githubusercontent.com/119969788/polybot/main/diagnose-failures.js
+
+
+验证修复
+----------------------------------------
+cd /opt/polybot
+
+# 检查导入语句
+grep "import.*PolymarketSDK" diagnose-failures.js
+# 应该显示: import { PolymarketSDK } from '@catalyst-team/poly-sdk';
+
+# 检查初始化方式
+grep "PolymarketSDK.create" diagnose-failures.js
+# 应该显示: sdk = await PolymarketSDK.create({
+
+# 运行诊断工具
+npm run diagnose
+# 或
+node diagnose-failures.js
+
+
+如果修复失败
+----------------------------------------
+# 恢复备份
+cp diagnose-failures.js.bak diagnose-failures.js
+
+# 检查文件内容
+cat diagnose-failures.js | head -30
+
+# 手动编辑
+nano diagnose-failures.js

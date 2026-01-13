@@ -1,0 +1,39 @@
+在服务器上执行以下命令解决分支分歧：
+========================================
+
+方法一：设置合并策略后拉取（推荐）
+----------------------------------------
+cd /opt/polybot
+git config pull.rebase false
+git pull origin main
+node diagnose-failures.js
+
+
+方法二：使用一次性命令（不修改配置）
+----------------------------------------
+cd /opt/polybot
+git pull origin main --no-rebase
+node diagnose-failures.js
+
+
+方法三：强制拉取（如果确定要覆盖本地更改）
+----------------------------------------
+cd /opt/polybot
+git fetch origin
+git reset --hard origin/main
+node diagnose-failures.js
+
+
+一行命令（最简单）
+----------------------------------------
+cd /opt/polybot && git config pull.rebase false && git pull origin main && node diagnose-failures.js
+
+
+如果本地有未提交的更改
+----------------------------------------
+cd /opt/polybot
+git stash                    # 暂存本地更改
+git config pull.rebase false
+git pull origin main
+git stash pop                # 恢复本地更改（如果需要）
+node diagnose-failures.js

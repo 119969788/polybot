@@ -1,0 +1,185 @@
+修复 package.json 中的 Git 合并冲突
+========================================
+
+问题：npm error JSON.parse Invalid package.json: JSONParseError: Unexpected token "<"
+---------------------------------------------------------------------------
+说明：package.json 文件中有未解决的 Git 合并冲突标记（<<<<<<< HEAD）
+
+
+方法一：手动编辑（推荐，最安全）
+----------------------------------------
+cd /opt/polybot
+
+# 备份配置文件
+cp package.json package.json.bak
+
+# 编辑配置文件
+nano package.json
+
+# 查找并删除以下冲突标记：
+# <<<<<<< HEAD
+# （保留这部分内容）
+# =======
+# （删除这部分内容）
+# >>>>>>>
+# （删除标记行）
+
+# 示例：
+# 找到类似这样的内容：
+#   "license": "MIT",
+# <<<<<<< HEAD
+#   "dependencies": {
+#     "@catalyst-team/poly-sdk": "0.4.0"
+#   }
+# =======
+#   "dependencies": {
+#     "@catalyst-team/poly-sdk": "0.3.0"
+#   }
+# >>>>>>>
+#
+# 保留 HEAD 版本（第一部分），删除所有标记：
+#   "license": "MIT",
+#   "dependencies": {
+#     "@catalyst-team/poly-sdk": "0.4.0"
+#   }
+
+# 保存：Ctrl+O, Enter, Ctrl+X
+
+
+方法二：使用 sed 命令（简单情况）
+----------------------------------------
+cd /opt/polybot
+
+# 备份
+cp package.json package.json.bak
+
+# 查看冲突内容
+grep -n "<<<<<<< HEAD" package.json
+
+# 手动编辑（推荐）或使用下面的命令（谨慎使用）
+
+# 如果冲突在文件末尾，可以尝试：
+# 删除所有冲突标记行（需要根据实际情况调整）
+# sed -i '/^<<<<<<< HEAD$/,/^>>>>>>>$/d' package.json
+
+# ⚠️  注意：sed 方法可能不准确，建议使用方法一
+
+
+方法三：使用修复脚本
+----------------------------------------
+# 上传脚本到服务器
+scp 修复Git冲突-服务器.sh user@server:/tmp/
+
+# 在服务器上执行
+ssh user@server
+bash /tmp/修复Git冲突-服务器.sh /opt/polybot
+
+
+方法四：从 GitHub 重新拉取（如果本地改动不重要）
+----------------------------------------
+cd /opt/polybot
+
+# 备份当前版本
+cp package.json package.json.local.bak
+
+# 重置到远程版本
+git checkout --theirs package.json
+# 或
+git checkout HEAD -- package.json
+
+# 如果需要保留本地更改，手动合并
+
+
+方法五：查看并手动解决
+----------------------------------------
+cd /opt/polybot
+
+# 查看冲突内容
+cat package.json | grep -A 20 "<<<<<<< HEAD"
+
+# 查看完整文件
+cat package.json
+
+# 编辑文件
+nano package.json
+
+# 删除所有冲突标记（<<<<<<< HEAD, =======, >>>>>>>）
+
+
+验证修复
+----------------------------------------
+cd /opt/polybot
+
+# 检查 JSON 语法
+node -e "require('./package.json')"
+
+# 检查是否还有冲突标记
+grep "<<<<<<< HEAD" package.json
+
+# 如果没有输出，说明冲突已解决
+
+# 运行 npm 命令
+npm install
+npm run diagnose
+
+
+冲突标记说明
+----------------------------------------
+Git 合并冲突标记：
+
+<<<<<<< HEAD
+（当前分支的内容 - 保留这部分）
+=======
+（要合并的分支的内容 - 删除这部分）
+>>>>>>> branch-name
+（结束标记 - 删除这行）
+
+解决方案：
+1. 保留 HEAD 版本（推荐，通常是当前分支的内容）
+2. 或保留 ======= 之后的版本
+3. 删除所有标记行（<<<<<<< HEAD, =======, >>>>>>>）
+
+
+如果修复失败
+----------------------------------------
+# 恢复备份
+cp package.json.bak package.json
+
+# 或从 Git 恢复
+git checkout HEAD -- package.json
+
+# 重新手动编辑
+nano package.json
+
+
+完整示例
+----------------------------------------
+假设 package.json 中有这样的冲突：
+
+{
+  "name": "polybot",
+  "version": "1.0.0",
+  "license": "MIT",
+<<<<<<< HEAD
+  "dependencies": {
+    "@catalyst-team/poly-sdk": "0.4.0"
+  }
+=======
+  "dependencies": {
+    "@catalyst-team/poly-sdk": "0.3.0"
+  }
+>>>>>>> origin/main
+}
+
+修复后应该是：
+
+{
+  "name": "polybot",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "@catalyst-team/poly-sdk": "0.4.0"
+  }
+}
+
+（保留了 HEAD 版本，删除了所有冲突标记）

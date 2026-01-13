@@ -1,0 +1,88 @@
+在服务器上修复 package.json（添加 diagnose 脚本）
+========================================
+
+问题：npm error Missing script: "diagnose"
+----------------------------------------
+说明：package.json 中缺少 diagnose 脚本
+
+
+方法一：手动编辑（推荐）
+----------------------------------------
+cd /opt/polybot
+
+# 备份配置文件
+cp package.json package.json.bak
+
+# 编辑配置文件
+nano package.json
+
+# 在 "scripts" 部分添加（大约第 12 行）：
+# "diagnose": "node diagnose-failures.js",
+
+
+方法二：使用 sed 命令（一行命令）
+----------------------------------------
+cd /opt/polybot
+
+# 备份
+cp package.json package.json.bak
+
+# 在 "start" 脚本后添加 diagnose 脚本
+sed -i '/"start": "node index.js",/a\    "diagnose": "node diagnose-failures.js",' package.json
+
+# 验证
+grep "diagnose" package.json
+
+
+方法三：使用修复脚本
+----------------------------------------
+# 上传脚本到服务器
+scp 修复package.json-服务器.sh user@server:/tmp/
+
+# 在服务器上执行
+ssh user@server
+bash /tmp/修复package.json-服务器.sh /opt/polybot
+
+
+方法四：从 GitHub 拉取最新代码（如果已推送）
+----------------------------------------
+cd /opt/polybot
+git pull origin main
+
+
+验证修复
+----------------------------------------
+cd /opt/polybot
+
+# 检查脚本是否已添加
+grep "diagnose" package.json
+
+# 运行诊断工具
+npm run diagnose
+# 或
+node diagnose-failures.js
+
+
+需要添加的内容
+----------------------------------------
+在 package.json 的 "scripts" 部分添加：
+
+"scripts": {
+  "start": "node index.js",
+  "dev": "node --watch index.js",
+  "diagnose": "node diagnose-failures.js",  // ✅ 添加这一行
+  "pm2:start": "pm2 start index.js --name polybot",
+  // ... 其他脚本
+}
+
+
+如果修复失败
+----------------------------------------
+# 恢复备份
+cp package.json.bak package.json
+
+# 手动编辑
+nano package.json
+
+# 检查 JSON 语法
+node -e "require('./package.json')"

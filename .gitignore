@@ -8,3 +8,11 @@ dist/
 build/
 *.pem
 *.key
+
+# 服务器部署相关
+*.backup
+install.sh.log
+
+# 盈利统计数据（不应该提交到 Git）
+data/
+profit-history.json

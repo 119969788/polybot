@@ -1,9 +1,19 @@
+#!/bin/bash
+
+# 在服务器上直接创建诊断工具文件
+# 如果无法上传文件，可以使用此脚本
+
+cd /opt/polybot || exit 1
+
+echo "📝 创建诊断工具文件..."
+
+cat > diagnose-failures.js << 'EOF'
 /**
  * 跟单失败诊断工具
  * 用于检查可能导致跟单失败的常见问题
  */
 
-import { PolymarketSDK } from '@catalyst-team/poly-sdk';
+import PolymarketSDK from '@catalyst-team/poly-sdk';
 import config from './config.js';
 
 async function diagnoseCopyTradingIssues() {
@@ -24,15 +34,13 @@ async function diagnoseCopyTradingIssues() {
     
     if (privateKey) {
       try {
-        // 使用静态工厂方法（与 index.js 保持一致）
-        sdk = await PolymarketSDK.create({
+        sdk = new PolymarketSDK({
           privateKey: privateKey,
           chainId: config.sdk?.chainId || 137,
         });
         console.log('   ✅ SDK 初始化成功（交易模式）');
       } catch (error) {
-        console.log(`   ⚠️  交易模式初始化失败: ${error.message}`);
-        console.log('   💡 回退到只读模式...');
+        console.log('   ⚠️  交易模式初始化失败，使用只读模式');
         sdk = new PolymarketSDK();
         issues.push('交易服务不可用 - 可能是钱包未在 Polymarket 注册或网络问题');
       }
@@ -113,8 +121,6 @@ async function diagnoseCopyTradingIssues() {
   console.log('🔍 检查 4: 账户状态...');
   if (sdk.tradingService) {
     try {
-      // 尝试获取余额（如果 SDK 支持）
-      // 注意：这需要 SDK 提供余额查询功能
       console.log('   ℹ️  交易服务可用');
       console.log('   💡 建议：手动检查 Polymarket 账户 USDC 余额');
       console.log(`   💡 确保余额 >= $${maxSizePerTrade + 5}（最大单笔 + 手续费缓冲）`);
@@ -131,7 +137,6 @@ async function diagnoseCopyTradingIssues() {
   // 5. 检查网络连接
   console.log('🔍 检查 5: 网络连接...');
   try {
-    // 尝试简单的 API 调用
     if (sdk.wallets) {
       await Promise.race([
         sdk.wallets.getTopTraders(1),
@@ -241,3 +246,19 @@ diagnoseCopyTradingIssues().catch(error => {
   console.error('❌ 诊断过程出错:', error);
   process.exit(1);
 });
+EOF
+
+echo "✅ 文件创建完成"
+chmod +x diagnose-failures.js
+
+echo ""
+echo "📋 验证文件:"
+ls -lh diagnose-failures.js
+
+echo ""
+echo "🔍 验证语法:"
+node --check diagnose-failures.js && echo "✅ 语法正确" || echo "❌ 语法错误"
+
+echo ""
+echo "💡 现在可以运行:"
+echo "   node diagnose-failures.js"

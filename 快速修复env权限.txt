@@ -1,0 +1,45 @@
+解决 .env 文件权限问题
+========================================
+
+方法一：修复权限（最简单）
+----------------------------------------
+cd /opt/poly-copy-trading
+chmod 600 .env
+
+
+方法二：如果文件不存在
+----------------------------------------
+cd /opt/poly-copy-trading
+cp env.example.txt .env
+chmod 600 .env
+
+
+方法三：修复所有者
+----------------------------------------
+cd /opt/poly-copy-trading
+sudo chown $(whoami):$(whoami) .env
+chmod 600 .env
+
+
+方法四：删除并重新创建
+----------------------------------------
+cd /opt/poly-copy-trading
+rm -f .env
+cp env.example.txt .env
+chmod 600 .env
+nano .env
+
+
+一行命令（推荐）
+----------------------------------------
+cd /opt/poly-copy-trading && \
+([ -f .env ] && chmod 600 .env || (cp env.example.txt .env && chmod 600 .env)) && \
+sudo chown $(whoami):$(whoami) .env 2>/dev/null && \
+echo "✅ 权限修复完成"
+
+
+验证修复
+----------------------------------------
+cd /opt/poly-copy-trading
+ls -l .env          # 应该显示 -rw-------
+nano .env           # 应该可以正常编辑

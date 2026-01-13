@@ -1,0 +1,57 @@
+修复安装权限问题
+========================================
+
+问题：Permission denied
+----------------------------------------
+解决方案：使用 sudo 或切换到 root 用户
+
+
+方法一：使用 sudo（推荐）
+----------------------------------------
+# 使用 GitHub 脚本
+curl -fsSL https://raw.githubusercontent.com/119969788/polybot/main/install.sh | sudo bash
+
+# 本地脚本
+sudo bash install.sh
+sudo bash 阿里云安装polybot.sh
+
+
+方法二：切换到 root 用户
+----------------------------------------
+sudo su -
+# 或
+su -
+
+# 然后运行
+bash install.sh
+
+
+方法三：一行命令（使用 sudo）
+----------------------------------------
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash - && \
+sudo apt install -y nodejs git && \
+sudo npm install -g pm2 && \
+sudo mkdir -p /opt/polybot && \
+cd /opt/polybot && \
+sudo git clone https://github.com/119969788/polybot.git . && \
+sudo npm install && \
+sudo cp config.example.js config.js && \
+sudo chown -R $(whoami):$(whoami) /opt/polybot
+
+
+升级 Node.js 到 20.x（如果已安装 18.x）
+----------------------------------------
+# 安装 Node.js 20.x LTS
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo bash -
+sudo apt install -y nodejs
+
+# 验证
+node --version
+
+
+验证安装
+----------------------------------------
+node --version   # 应该是 v20.x.x
+npm --version
+pm2 --version
+ls -l /opt/polybot

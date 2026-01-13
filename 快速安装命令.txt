@@ -1,0 +1,63 @@
+在阿里云服务器上快速安装 poly-copy-trading
+========================================
+
+方法一：使用安装脚本（推荐）
+----------------------------------------
+# 上传安装脚本到服务器
+scp 安装poly-copy-trading.sh user@server:/tmp/
+
+# 在服务器上执行
+ssh user@server
+bash /tmp/安装poly-copy-trading.sh
+
+
+方法二：一行命令安装
+----------------------------------------
+ssh user@server 'bash -s' << 'EOF'
+yum update -y
+curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+yum install -y nodejs git
+npm install -g pnpm pm2
+mkdir -p /opt && cd /opt
+git clone https://github.com/119969788/poly-copy-trading.git
+cd poly-copy-trading
+pnpm install
+cp env.example.txt .env
+echo "✅ 安装完成！请编辑 .env 文件配置私钥"
+EOF
+
+
+方法三：分步手动安装
+----------------------------------------
+# 1. SSH 连接到服务器
+ssh user@server
+
+# 2. 安装 Node.js 18
+curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+yum install -y nodejs
+
+# 3. 安装 pnpm 和 PM2
+npm install -g pnpm pm2
+
+# 4. 克隆项目
+cd /opt
+git clone https://github.com/119969788/poly-copy-trading.git
+cd poly-copy-trading
+
+# 5. 安装依赖
+pnpm install
+
+# 6. 配置环境变量
+cp env.example.txt .env
+nano .env
+# 填入: POLYMARKET_PRIVATE_KEY=你的私钥
+
+# 7. 运行（测试模式）
+pnpm start
+
+
+使用 PM2 后台运行
+----------------------------------------
+pm2 start pnpm --name poly-copy-trading -- start
+pm2 save
+pm2 startup

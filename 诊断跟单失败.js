@@ -3,7 +3,7 @@
  * 用于检查可能导致跟单失败的常见问题
  */
 
-import { PolymarketSDK } from '@catalyst-team/poly-sdk';
+import PolymarketSDK from '@catalyst-team/poly-sdk';
 import config from './config.js';
 
 async function diagnoseCopyTradingIssues() {
@@ -24,15 +24,13 @@ async function diagnoseCopyTradingIssues() {
     
     if (privateKey) {
       try {
-        // 使用静态工厂方法（与 index.js 保持一致）
-        sdk = await PolymarketSDK.create({
+        sdk = new PolymarketSDK({
           privateKey: privateKey,
           chainId: config.sdk?.chainId || 137,
         });
         console.log('   ✅ SDK 初始化成功（交易模式）');
       } catch (error) {
-        console.log(`   ⚠️  交易模式初始化失败: ${error.message}`);
-        console.log('   💡 回退到只读模式...');
+        console.log('   ⚠️  交易模式初始化失败，使用只读模式');
         sdk = new PolymarketSDK();
         issues.push('交易服务不可用 - 可能是钱包未在 Polymarket 注册或网络问题');
       }
@@ -227,8 +225,8 @@ async function diagnoseCopyTradingIssues() {
   console.log('  maxSlippage: 0.05,       // 5% 滑点');
   console.log('  maxSizePerTrade: 10,      // 根据余额调整');
   console.log('  minTradeSize: 1,         // 最小 $1');
-  console.log('  autoFollow: true,         // 启用自动跟单');
-  console.log('  dryRun: true,             // 测试模式');
+  console.log('  autoFollow: true,        // 启用自动跟单');
+  console.log('  dryRun: true,            // 测试模式');
   console.log('}');
   console.log('```');
   console.log('');

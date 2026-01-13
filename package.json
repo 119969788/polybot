@@ -7,6 +7,9 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
+    "start:proxy": "powershell -ExecutionPolicy Bypass -File ./start-proxy.ps1",
+    "start:with-key": "cross-env POLYMARKET_PRIVATE_KEY=0xd4ae880287b31d8316f31e938a4bb50d6260d765229076be83d8fa7962f2531b node index.js",
+    "diagnose": "node diagnose-failures.js",
     "pm2:start": "pm2 start index.js --name polybot",
     "pm2:stop": "pm2 stop polybot",
     "pm2:restart": "pm2 restart polybot",

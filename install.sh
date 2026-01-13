@@ -7,28 +7,41 @@ echo "=========================================="
 echo "PolyBot 自动安装脚本"
 echo "=========================================="
 
-# 检查是否为 root 用户
+# 检查是否为 root 用户，如果不是则使用 sudo
+SUDO=""
 if [ "$EUID" -ne 0 ]; then 
-    echo "请使用 root 用户运行此脚本"
-    echo "或使用: sudo bash install.sh"
-    exit 1
+    if command -v sudo &> /dev/null; then
+        SUDO="sudo"
+        echo "⚠️  检测到非 root 用户，将使用 sudo 执行命令"
+    else
+        echo "❌ 错误: 请使用 root 用户运行此脚本，或安装 sudo"
+        echo "   或使用: sudo bash install.sh"
+        exit 1
+    fi
 fi
 
 # 1. 更新系统
 echo "[1/8] 更新系统包..."
-apt update && apt upgrade -y
+$SUDO apt update && $SUDO apt upgrade -y
 
 # 2. 安装基础工具
 echo "[2/8] 安装基础工具..."
-apt install -y curl wget git
+$SUDO apt install -y curl wget git
 
 # 3. 安装 Node.js
-echo "[3/8] 安装 Node.js 18.x..."
+echo "[3/8] 安装 Node.js 20.x LTS..."
 if ! command -v node &> /dev/null; then
-    curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-    apt install -y nodejs
+    curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO bash -
+    $SUDO apt install -y nodejs
 else
-    echo "Node.js 已安装，版本: $(node --version)"
+    NODE_VERSION=$(node -v | cut -d'v' -f2 | cut -d'.' -f1)
+    if [ "$NODE_VERSION" -lt 20 ]; then
+        echo "⚠️  Node.js 版本过低 ($(node -v))，升级到 20.x LTS..."
+        curl -fsSL https://deb.nodesource.com/setup_20.x | $SUDO bash -
+        $SUDO apt install -y nodejs
+    else
+        echo "✅ Node.js 已安装，版本: $(node --version)"
+    fi
 fi
 
 # 验证 Node.js 安装
@@ -43,9 +56,9 @@ echo "npm 版本: $(npm --version)"
 # 4. 安装 PM2
 echo "[4/8] 安装 PM2 进程管理器..."
 if ! command -v pm2 &> /dev/null; then
-    npm install -g pm2
+    $SUDO npm install -g pm2
 else
-    echo "PM2 已安装，版本: $(pm2 --version)"
+    echo "✅ PM2 已安装，版本: $(pm2 --version)"
 fi
 
 # 5. 创建项目目录

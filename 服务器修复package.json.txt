@@ -1,0 +1,114 @@
+在服务器上修复 package.json（添加 diagnose 脚本）
+========================================
+
+问题：npm error Missing script: "diagnose"
+---------------------------------------------------------------------------
+说明：服务器上的 package.json 中缺少 diagnose 脚本
+
+
+方法一：直接运行诊断工具（无需修改 package.json）
+----------------------------------------
+cd /opt/polybot
+
+# 直接运行诊断工具（不通过 npm 脚本）
+node diagnose-failures.js
+
+
+方法二：手动编辑 package.json（推荐）
+----------------------------------------
+cd /opt/polybot
+
+# 备份配置文件
+cp package.json package.json.bak
+
+# 编辑配置文件
+nano package.json
+
+# 在 "scripts" 部分添加（大约第 12 行，在 "start" 脚本之后）：
+# "diagnose": "node diagnose-failures.js",
+
+
+方法三：使用 sed 命令（一行命令）
+----------------------------------------
+cd /opt/polybot
+
+# 备份
+cp package.json package.json.bak
+
+# 在 "start" 脚本后添加 diagnose 脚本
+sed -i '/"start": "node index.js",/a\    "diagnose": "node diagnose-failures.js",' package.json
+
+# 验证
+grep "diagnose" package.json
+
+
+方法四：从 GitHub 拉取最新代码（如果已推送）
+----------------------------------------
+cd /opt/polybot
+
+# 检查是否有未提交的更改
+git status
+
+# 如果有未提交的更改，先备份
+cp package.json package.json.local.bak
+
+# 拉取最新代码
+git pull origin main
+
+# 如果出现冲突，使用本地备份恢复
+# cp package.json.local.bak package.json
+
+
+验证修复
+----------------------------------------
+cd /opt/polybot
+
+# 方法 A：检查脚本是否已添加
+grep "diagnose" package.json
+
+# 方法 B：检查 JSON 语法
+node -e "require('./package.json')"
+
+# 方法 C：运行诊断工具
+npm run diagnose
+# 或
+node diagnose-failures.js
+
+
+需要添加的内容（完整 scripts 部分示例）
+----------------------------------------
+"scripts": {
+  "start": "node index.js",
+  "dev": "node --watch index.js",
+  "start:proxy": "powershell -ExecutionPolicy Bypass -File ./start-proxy.ps1",
+  "start:with-key": "cross-env POLYMARKET_PRIVATE_KEY=... node index.js",
+  "diagnose": "node diagnose-failures.js",  // ✅ 添加这一行
+  "pm2:start": "pm2 start index.js --name polybot",
+  "pm2:stop": "pm2 stop polybot",
+  "pm2:restart": "pm2 restart polybot",
+  "pm2:logs": "pm2 logs polybot"
+}
+
+
+如果修复失败
+----------------------------------------
+# 恢复备份
+cp package.json.bak package.json
+
+# 手动编辑
+nano package.json
+
+# 检查 JSON 语法
+node -e "require('./package.json')"
+
+
+快速命令（复制粘贴即可）
+----------------------------------------
+# 备份 + 添加 diagnose 脚本
+cd /opt/polybot && cp package.json package.json.bak && sed -i '/"start": "node index.js",/a\    "diagnose": "node diagnose-failures.js",' package.json && grep "diagnose" package.json
+
+# 验证 JSON 语法
+node -e "require('./package.json')"
+
+# 运行诊断工具
+node diagnose-failures.js

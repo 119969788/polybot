@@ -1,0 +1,61 @@
+📤 快速上传诊断工具到服务器
+========================================
+
+方法一：SCP 上传（推荐）
+----------------------------------------
+# 在本地 Windows PowerShell 执行
+# 替换 user@server-ip 为你的服务器信息
+
+scp diagnose-failures.js user@server-ip:/opt/polybot/
+
+
+方法二：Git 拉取（如果使用 Git）
+----------------------------------------
+# 本地提交
+git add diagnose-failures.js
+git commit -m "添加诊断工具"
+git push origin main
+
+# 服务器拉取
+ssh user@server-ip
+cd /opt/polybot
+git pull origin main
+
+
+方法三：直接在服务器上创建（最简单）
+----------------------------------------
+# SSH 连接到服务器
+ssh user@server-ip
+cd /opt/polybot
+
+# 运行创建脚本（如果有）
+bash 服务器上创建诊断工具.sh
+
+# 或手动创建（复制文件内容）
+
+
+验证上传
+----------------------------------------
+# 检查文件
+ls -la diagnose-failures.js
+
+# 验证语法
+node --check diagnose-failures.js
+
+# 运行诊断
+node diagnose-failures.js
+
+
+如果文件很大，可以压缩上传
+----------------------------------------
+# 本地压缩
+zip diagnose.zip diagnose-failures.js
+
+# 上传
+scp diagnose.zip user@server-ip:/opt/polybot/
+
+# 服务器解压
+ssh user@server-ip
+cd /opt/polybot
+unzip diagnose.zip
+rm diagnose.zip

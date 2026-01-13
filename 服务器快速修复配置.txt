@@ -1,0 +1,70 @@
+服务器配置修复 - 快速命令
+========================================
+
+问题：
+1. autoFollow 未启用
+2. 未配置私钥
+3. 建议设置 orderType: "FAK"
+
+快速修复
+----------------------------------------
+cd /opt/polybot
+
+# 备份配置
+cp config.js config.js.bak
+
+# 编辑配置
+nano config.js
+
+
+需要修改的内容：
+----------------------------------------
+1. followSettings.autoFollow: true
+2. followSettings.orderType: 'FAK'
+3. sdk.privateKey: 配置你的私钥
+
+
+使用 sed 快速修复（如果知道当前值）
+----------------------------------------
+# 确保 autoFollow 为 true
+sed -i "s/autoFollow: false/autoFollow: true/g" config.js
+
+# 确保 orderType 为 FAK
+sed -i "s/orderType: 'FOK'/orderType: 'FAK'/g" config.js
+
+# 验证
+grep "autoFollow:" config.js
+grep "orderType:" config.js
+
+
+验证修复
+----------------------------------------
+npm run diagnose
+# 或
+node diagnose-failures.js
+
+
+推荐配置
+----------------------------------------
+followSettings: {
+  sizeScale: 0.1,
+  maxSizePerTrade: 10,
+  minTradeSize: 1,
+  maxSlippage: 0.05,
+  orderType: 'FAK',      // ✅ 必须
+  autoFollow: true,      // ✅ 必须
+  dryRun: true,          // ✅ 测试模式
+  watchInterval: 5000,
+}
+
+
+关于私钥
+----------------------------------------
+方式一（推荐）：环境变量
+export POLYMARKET_PRIVATE_KEY="0x你的私钥"
+
+方式二：直接在 config.js
+sdk: {
+  privateKey: '0x你的私钥',
+  chainId: 137,
+}

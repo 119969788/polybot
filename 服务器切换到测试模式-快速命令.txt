@@ -1,0 +1,50 @@
+========================================
+腾讯云服务器切换到测试模式 - 快速命令
+========================================
+
+方法一：一行命令（最简单）
+----------------------------------------
+cd /opt/polybot && cp config.js config.js.backup && sed -i 's/dryRun: false/dryRun: true/g' config.js && echo "✅ 已切换到测试模式" && grep "dryRun" config.js
+
+
+方法二：分步执行（推荐）
+----------------------------------------
+# 1. 进入项目目录
+cd /opt/polybot
+
+# 2. 备份配置文件
+cp config.js config.js.backup.$(date +%Y%m%d_%H%M%S)
+
+# 3. 切换到测试模式
+sed -i 's/dryRun: false/dryRun: true/g' config.js
+
+# 4. 验证修改
+grep -A 1 "dryRun" config.js
+
+# 5. 验证配置（需要 Node.js）
+node -e "import('./config.js').then(c => console.log('测试模式:', c.default.followSettings?.dryRun !== false ? '✅ 已启用' : '❌ 未启用')).catch(e => console.error('验证失败:', e.message));"
+
+
+方法三：使用 nano 编辑器（最安全）
+----------------------------------------
+cd /opt/polybot
+cp config.js config.js.backup
+nano config.js
+
+# 找到 dryRun: false 改为 dryRun: true
+# 保存：Ctrl+O, 回车, Ctrl+X
+
+
+验证配置
+----------------------------------------
+# 检查配置文件
+cat config.js | grep -A 1 "dryRun"
+
+# 或使用配置检查工具
+node test-config.js
+
+
+如果使用 PM2，需要重启
+----------------------------------------
+pm2 restart polybot
+pm2 logs polybot
